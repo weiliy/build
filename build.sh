@@ -96,31 +96,6 @@ do
 
 	[ -f "$INPUTFILE" ] || ( echo "ERRO: INDEX -> $INPUTFILE" >&2; exit 1)
 
-	echo -en "  README (Markdown) "
-#   ### Markdown README
-	MARKDOWN_KEY00='^# '
-	MARKDOWN_KEY01='^#$'
-	MARKDOWNCACHE=".build.markdown.cache"
-	MARKDOWN=${INPUTFILE/%.sh/.README.md}
-	MARKDOWN_HTML=${MARKDOWN/%.md/.html}
-	MARKDOWN_HTML_TITLE="$INPUTFILE Readme"
-	MARKDOWN_HTML_TITLECACHE=".build.markdown.title.cache"
-	MARKDOWN_TEMPLATE=".build.html.template"
-
-	>$MARKDOWN || ( echo "ERRO: cannot create file at ${pwd}"  >&2; exit 1)
-	cat $INPUTFILE \
-	| grep -e "$MARKDOWN_KEY00" -e "$MARKDOWN_KEY01" \
-	| cut -b 3- >> $MARKDOWN
-	echo -en ">> $MARKDOWN\n"
-
-	echo -en "  README (HTML) "
-	>$MARKDOWNCACHE || ( echo "ERRO: cannot create file at ${pwd}" >&2; exit 1)
-	markdown $MARKDOWN > $MARKDOWNCACHE
-	>$MARKDOWN_HTML_TITLECACHE || ( echo "ERRO: cannot create file at ${pwd}"  >&2; exit 1)
-	echo "<title>$MARKDOWN_HTML_TITLE</title>" > $MARKDOWN_HTML_TITLECACHE
-	while_if $MARKDOWN_TEMPLATE "MARKDOWN" $MARKDOWN_HTML 
-	echo -en ">> $MARKDOWN_HTML\n" 
-
 	echo -en "  Release...\n"
 	for STR in $(cat $INDEXFILE | grep -v "^#" | cut -f1)
 	do
@@ -139,8 +114,6 @@ done
 
 echo -en "Cleaning "
 rm -rf $INDEXCACHE
-rm -rf $MARKDOWNCACHE 
-rm -rf $MARKDOWN_HTML_TITLECACHE
 rm -rf $IFCACHE 
 echo -en "...DONE!\n"
 echo -en "Build complated at $(date)\n"
