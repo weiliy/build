@@ -7,7 +7,7 @@
 
 # Function to include script to main script output
 
-include ()
+function include ()
 {
 [ -f "$1" ] || ( echo "include.err: $1 is illegal." >&2 ; exit 1 )
 
@@ -30,44 +30,44 @@ done
 
 # Function to hand <if>
 
-while_if ()
+function while_if ()
 {
-IN=$1
-OS=$2
-OUT=$3
-IFCACHE=".build.if.cache"
-> $OUT || ( echo "ERRO: > $OUT" >&2 ; exit 1 )
-> $IFCACHE || ( echo "ERRO: > $IFCACHE >&2" ; exit 1 )
+   IN=$1
+   OS=$2
+   OUT=$3
+   IFCACHE=".build.if.cache"
+   > $OUT || ( echo "ERRO: > $OUT" >&2 ; exit 1 )
+   > $IFCACHE || ( echo "ERRO: > $IFCACHE >&2" ; exit 1 )
 
-IFFLAG=0	;# 1: start if ; 0: exit if 
-IFMATCH=0	;# 1 will processing if
-while IFS=$'\n' read -r LINE
-do
-	case "$IFFLAG" in
-		0)
-			IFFLAG=$(echo "$LINE" | grep '^<if' | wc -l)
-			if [ 0 -ne $IFFLAG ] 
-			then
-				EX=$(echo "$LINE" | cut -d' ' -f2)
-				[ ${#OS} -eq $(expr "$OS" : "$EX") ] && \
-					IFMATCH=1
-			else
-				echo "$LINE"
-			fi
-			;;
-		1)
-			if [ 0 -eq $(echo "$LINE" | grep '^</if>' | wc -l) ]
-			then
-				[ 1 -eq $IFMATCH ] && echo $LINE > $IFCACHE 
-			else
-				. $IFCACHE 
-				IFFLAG=0
-				IFMATCH=0
-				>$IFCACHE 
-			fi
-			;;
-	esac				
-done < $IN >> $OUT
+   IFFLAG=0	;# 1: start if ; 0: exit if 
+   IFMATCH=0	;# 1 will processing if
+   while IFS=$'\n' read -r LINE
+   do
+      case "$IFFLAG" in
+         0)
+            IFFLAG=$(echo "$LINE" | grep -E '^\s*<if' | wc -l)
+            if [ 0 -ne $IFFLAG ] 
+            then
+               EX=$(echo "$LINE" | cut -d' ' -f2)
+               [ ${#OS} -eq $(expr "$OS" : "$EX") ] && \
+                  IFMATCH=1
+            else
+               echo "$LINE"
+            fi
+            ;;
+         1)
+            if [ 0 -eq $(echo "$LINE" | grep '^\s*</if>' | wc -l) ]
+            then
+               [ 1 -eq $IFMATCH ] && echo $LINE > $IFCACHE 
+            else
+               . $IFCACHE 
+               IFFLAG=0
+               IFMATCH=0
+               >$IFCACHE 
+            fi
+            ;;
+      esac				
+   done < $IN >> $OUT
 
 }
 # ## Main Script
@@ -114,7 +114,8 @@ done
 
 echo -en "Cleaning "
 rm -rf $INDEXCACHE
+rm -rf $MARKDOWNCACHE 
+rm -rf $MARKDOWN_HTML_TITLECACHE
 rm -rf $IFCACHE 
 echo -en "...DONE!\n"
-echo -en "Build complated at $(date)\n"
-
+echo -en "Build completed at $(date)\n"
