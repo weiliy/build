@@ -1,5 +1,13 @@
-# build
+# My Shell Tools
+
+## build.sh
 
 buid support to include other picese in your code.
 
-## How to use
+## rand-gen.sh
+
+Generate random directory and files.
+
+```shell
+random-gen.sh Dir_Num File_Num_Per_Dir
+```
